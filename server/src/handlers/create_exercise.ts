@@ -1,14 +1,24 @@
 
+import { db } from '../db';
+import { exercisesTable } from '../db/schema';
 import { type CreateExerciseInput, type Exercise } from '../schema';
 
-export async function createExercise(input: CreateExerciseInput): Promise<Exercise> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is creating a new exercise type and persisting it in the database.
-  return Promise.resolve({
-    id: 0, // Placeholder ID
-    name: input.name,
-    category: input.category,
-    description: input.description,
-    created_at: new Date() // Placeholder date
-  } as Exercise);
-}
+export const createExercise = async (input: CreateExerciseInput): Promise<Exercise> => {
+  try {
+    // Insert exercise record
+    const result = await db.insert(exercisesTable)
+      .values({
+        name: input.name,
+        category: input.category,
+        description: input.description
+      })
+      .returning()
+      .execute();
+
+    const exercise = result[0];
+    return exercise;
+  } catch (error) {
+    console.error('Exercise creation failed:', error);
+    throw error;
+  }
+};

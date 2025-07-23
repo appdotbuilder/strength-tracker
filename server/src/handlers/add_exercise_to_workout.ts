@@ -1,14 +1,22 @@
 
+import { db } from '../db';
+import { workoutExercisesTable } from '../db/schema';
 import { type CreateWorkoutExerciseInput, type WorkoutExercise } from '../schema';
 
-export async function addExerciseToWorkout(input: CreateWorkoutExerciseInput): Promise<WorkoutExercise> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is adding an exercise to a workout and persisting it in the database.
-  return Promise.resolve({
-    id: 0, // Placeholder ID
-    workout_id: input.workout_id,
-    exercise_id: input.exercise_id,
-    order_index: input.order_index,
-    created_at: new Date() // Placeholder date
-  } as WorkoutExercise);
-}
+export const addExerciseToWorkout = async (input: CreateWorkoutExerciseInput): Promise<WorkoutExercise> => {
+  try {
+    const result = await db.insert(workoutExercisesTable)
+      .values({
+        workout_id: input.workout_id,
+        exercise_id: input.exercise_id,
+        order_index: input.order_index
+      })
+      .returning()
+      .execute();
+
+    return result[0];
+  } catch (error) {
+    console.error('Adding exercise to workout failed:', error);
+    throw error;
+  }
+};
